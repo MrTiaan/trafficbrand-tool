@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrafficBrand Operating System</title>
+    <title>TrafficBrand OS | Master Strategy Tool</title>
     
-    <!-- Fonts: Inter for that clean SaaS look -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     
-    <!-- Alpine.js for interactivity -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -24,13 +21,15 @@
                     },
                     colors: {
                         slate: {
-                            850: '#151f32', // Custom slightly lighter slate for cards
-                            900: '#0f172a', // Main background
+                            850: '#151f32',
+                            900: '#0f172a',
+                            950: '#020617',
                         },
                         brand: {
-                            DEFAULT: '#32CD32', // The TrafficBrand Lime
+                            DEFAULT: '#32CD32', // Lime Green
                             dim: '#228B22',
-                            glow: 'rgba(50, 205, 50, 0.5)'
+                            glow: 'rgba(50, 205, 50, 0.5)',
+                            light: '#86ef86'
                         }
                     },
                     animation: {
@@ -41,383 +40,453 @@
         }
     </script>
 
+    <!-- Application Logic -->
+    <script>
+        function trafficBrandApp() {
+            return {
+                search: '',
+                baseRate: 984.43,
+
+                // DATA STORE WITH MULTIPLIERS (As per Master Prompt)
+                services: [
+                    // DATA (1.0x)
+                    { category: 'Data', name: 'Platform Audit', points: 8.0, multiplier: 1.0 },
+                    { category: 'Data', name: 'GA4 Architecture', points: 12.0, multiplier: 1.0 },
+                    { category: 'Data', name: 'GTM Optimisation', points: 12.0, multiplier: 1.0 },
+                    { category: 'Data', name: 'Data Layer Spec', points: 8.0, multiplier: 1.0 },
+                    { category: 'Data', name: 'BigQuery Integration', points: 12.0, multiplier: 1.0 },
+                    
+                    // INSIGHTS (1.25x)
+                    { category: 'Insights', name: 'Executive Dashboard', points: 14.0, multiplier: 1.25 },
+                    { category: 'Insights', name: 'Creative Impact Modelling', points: 20.0, multiplier: 1.25 },
+                    { category: 'Insights', name: 'Incrementality Testing', points: 18.0, multiplier: 1.25 },
+
+                    // ACTION (1.5x)
+                    { category: 'Action', name: 'Discovery Workshop', points: 14.0, multiplier: 1.5 },
+                    { category: 'Action', name: 'Measurement Framework', points: 8.0, multiplier: 1.5 },
+                    { category: 'Action', name: 'Marketing Script Deployment', points: 4.0, multiplier: 1.5 },
+
+                    // AUTOMATION (2.0x)
+                    { category: 'Automation', name: 'Server-Side GTM Setup', points: 24.0, multiplier: 2.0 },
+                    { category: 'Automation', name: 'Consent Mode V2', points: 10.0, multiplier: 2.0 },
+                    { category: 'Automation', name: 'CRM Data Enrichment', points: 18.0, multiplier: 2.0 },
+                    { category: 'Automation', name: 'Offline Conversion Import', points: 14.0, multiplier: 2.0 },
+                    { category: 'Automation', name: 'Predictive Audience Segmentation', points: 24.0, multiplier: 2.0 }
+                ],
+
+                get filteredServices() {
+                    if (this.search === '') return this.services;
+                    return this.services.filter(s => s.name.toLowerCase().includes(this.search.toLowerCase()));
+                },
+
+                calculateServiceValue(service) {
+                    return (service.points * service.multiplier * this.baseRate);
+                },
+
+                formatCurrency(val) {
+                    if (val === undefined || val === null) return 'R0';
+                    // Update: Remove decimals (maximumFractionDigits: 0)
+                    return val.toLocaleString('en-ZA', { style: 'currency', currency: 'ZAR', maximumFractionDigits: 0 });
+                }
+            };
+        }
+    </script>
+    
+    <!-- Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
-        /* Custom Scrollbar for the table */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569; 
-        }
-        
         .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-300 font-sans antialiased selection:bg-brand selection:text-slate-900">
+<body class="bg-slate-900 text-slate-300 font-sans antialiased selection:bg-brand selection:text-slate-900" x-data="trafficBrandApp()">
 
     <!-- Navbar -->
     <nav class="fixed top-0 w-full z-50 glass-panel border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex-shrink-0">
+                <div class="flex items-center gap-2">
+                    <!-- Logo Placeholder -->
+                    <div class="w-8 h-8 bg-brand rounded-lg flex items-center justify-center font-black text-slate-900 text-sm">TB</div>
                     <span class="text-white font-bold text-xl tracking-tight">Traffic<span class="text-brand">Brand</span></span>
-                </div>
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <span class="text-xs font-semibold text-brand tracking-widest uppercase bg-brand/10 px-2 py-1 rounded">Internal Tool v2.0</span>
-                    </div>
+                    <span class="text-[10px] font-bold text-slate-900 bg-brand px-1.5 py-0.5 rounded ml-2">OS v6.0</span>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- 1. Hero Section (The Hook) -->
-    <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
-        <!-- Abstract Background Pattern -->
-        <div class="absolute top-0 left-1/2 w-full -translate-x-1/2 h-full z-0 opacity-20 pointer-events-none">
-            <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand/20 via-slate-900 to-slate-900"></div>
-            <div class="absolute inset-0" style="background-image: radial-gradient(#32CD32 1px, transparent 1px); background-size: 50px 50px; opacity: 0.1;"></div>
+    <!-- 1. Hero Section (The Manifesto) -->
+    <section class="relative pt-32 pb-24 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+             <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-slate-950"></div>
+             <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(rgba(50, 205, 50, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(50, 205, 50, 0.3) 1px, transparent 1px); background-size: 40px 40px;"></div>
         </div>
-
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-5xl md:text-7xl font-black text-white tracking-tight mb-6 leading-tight">
+        
+        <div class="relative z-10 max-w-4xl mx-auto px-4 text-center">
+            <h1 class="text-5xl md:text-7xl font-black text-white tracking-tighter mb-6">
                 The Billable Hour <br>
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand to-emerald-400">Is Dead.</span>
             </h1>
-            <p class="mt-4 text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto">
+            <p class="text-xl text-slate-400 font-light mb-10 max-w-2xl mx-auto">
                 Welcome to the TrafficBrand Operating System. <br>
                 <span class="text-white font-medium">We sell Outcomes, not Time.</span>
             </p>
-            <div class="mt-10 flex justify-center gap-4">
-                <a href="#calculator" class="px-8 py-3 rounded-lg bg-brand text-slate-900 font-bold hover:bg-brand-dim transition-colors shadow-[0_0_20px_rgba(50,205,50,0.4)]">
-                    Calculate Pricing
+            <div class="flex justify-center gap-4">
+                <a href="#diaa-framework" class="px-6 py-3 bg-brand text-slate-900 font-bold rounded-lg hover:bg-brand-dim transition-colors shadow-[0_0_20px_rgba(50,205,50,0.3)]">
+                    Explore Framework
                 </a>
-                <a href="#framework" class="px-8 py-3 rounded-lg glass-panel text-white font-medium hover:bg-slate-800 transition-colors border border-slate-700">
-                    View Framework
+                <a href="#service-menu" class="px-6 py-3 border border-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors">
+                    Service Catalogue
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- 2. Section 1: The DIAA Framework (The Roadmap) -->
-    <section id="framework" class="py-20 bg-slate-900 relative border-t border-slate-800/50">
+    <!-- 2. Section 1: The DIAA Maturity Framework -->
+    <section id="diaa-framework" class="py-20 bg-slate-900 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-white mb-4">The DIAA Maturity Model</h2>
-                <p class="text-slate-400 max-w-2xl mx-auto">Before we discuss price, we diagnose maturity. Where does the client sit on the roadmap?</p>
+                <h2 class="text-3xl font-bold text-white mb-4">The DIAA Maturity Framework</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">We move clients up the maturity curve. From Data to Automation.</p>
             </div>
-
+            
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- DATA -->
-                <div class="bg-slate-850 p-8 rounded-2xl border border-slate-800 hover:border-brand/50 transition-all duration-300 group">
-                    <div class="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center mb-6 text-brand group-hover:bg-brand group-hover:text-slate-900 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
-                    </div>
+                <!-- Data -->
+                <div class="bg-slate-850 p-6 rounded-xl border border-slate-800 hover:border-brand/40 transition-all group h-full">
+                    <div class="text-slate-500 font-black text-4xl mb-4 opacity-50">01</div>
                     <h3 class="text-xl font-bold text-white mb-2">DATA</h3>
-                    <p class="text-sm font-semibold text-brand mb-3 uppercase tracking-wider">Foundation</p>
-                    <p class="text-slate-400 text-sm leading-relaxed">Engineering accurate tracking, warehousing, and sanitation. If you can't measure it, we can't grow it.</p>
+                    <p class="text-xs text-brand uppercase tracking-widest mb-3">Foundation</p>
+                    <p class="text-slate-300 text-sm font-medium mb-2">"Engineering the Plumbing."</p>
+                    <p class="text-slate-400 text-sm leading-relaxed">We build the architecture for accurate tracking, warehousing, and privacy compliance. <strong>The Logic:</strong> If the data isn't trusted, the business is blind. This stage removes the 'Garbage In' problem.</p>
                 </div>
-
-                <!-- INSIGHTS -->
-                <div class="bg-slate-850 p-8 rounded-2xl border border-slate-800 hover:border-brand/50 transition-all duration-300 group">
-                    <div class="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center mb-6 text-brand group-hover:bg-brand group-hover:text-slate-900 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
-                    </div>
+                <!-- Insights -->
+                <div class="bg-slate-850 p-6 rounded-xl border border-slate-800 hover:border-brand/40 transition-all group h-full">
+                    <div class="text-blue-500 font-black text-4xl mb-4 opacity-70">02</div>
                     <h3 class="text-xl font-bold text-white mb-2">INSIGHTS</h3>
-                    <p class="text-sm font-semibold text-brand mb-3 uppercase tracking-wider">Intelligence</p>
-                    <p class="text-slate-400 text-sm leading-relaxed">Visualizing data into decision-ready narratives. Moving from "what happened" to "why it happened."</p>
+                    <p class="text-xs text-brand uppercase tracking-widest mb-3">Intelligence</p>
+                    <p class="text-slate-300 text-sm font-medium mb-2">"Visualising the Truth."</p>
+                    <p class="text-slate-400 text-sm leading-relaxed">We transform raw engineering into decision-ready narratives and dashboards. <strong>The Logic:</strong> Data is useless without context. We turn complex numbers into clear answers for stakeholders.</p>
                 </div>
-
-                <!-- ACTION -->
-                <div class="bg-slate-850 p-8 rounded-2xl border border-slate-800 hover:border-brand/50 transition-all duration-300 group">
-                    <div class="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center mb-6 text-brand group-hover:bg-brand group-hover:text-slate-900 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                    </div>
+                <!-- Action -->
+                <div class="bg-slate-850 p-6 rounded-xl border border-slate-800 hover:border-brand/40 transition-all group h-full">
+                    <div class="text-purple-500 font-black text-4xl mb-4 opacity-80">03</div>
                     <h3 class="text-xl font-bold text-white mb-2">ACTION</h3>
-                    <p class="text-sm font-semibold text-brand mb-3 uppercase tracking-wider">Strategy</p>
-                    <p class="text-slate-400 text-sm leading-relaxed">Deploying tactics to drive specific goals. Media buying, CRO, and campaign execution.</p>
+                    <p class="text-xs text-brand uppercase tracking-widest mb-3">Strategy</p>
+                    <p class="text-slate-300 text-sm font-medium mb-2">"Tactical Implementation."</p>
+                    <p class="text-slate-400 text-sm leading-relaxed">Deploying high-impact marketing adjustments and CRO experiments based on intelligence. <strong>The Logic:</strong> Insights only create value when acted upon. This bridges the gap between knowing and doing.</p>
                 </div>
-
-                <!-- AUTOMATION -->
-                <div class="bg-slate-850 p-8 rounded-2xl border border-slate-800 hover:border-brand/50 transition-all duration-300 group">
-                    <div class="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center mb-6 text-brand group-hover:bg-brand group-hover:text-slate-900 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-                    </div>
+                <!-- Automation -->
+                <div class="bg-slate-850 p-6 rounded-xl border border-slate-800 hover:border-brand/40 transition-all group h-full shadow-[0_0_20px_rgba(50,205,50,0.1)]">
+                    <div class="text-brand font-black text-4xl mb-4">04</div>
                     <h3 class="text-xl font-bold text-white mb-2">AUTOMATION</h3>
-                    <p class="text-sm font-semibold text-brand mb-3 uppercase tracking-wider">Scale</p>
-                    <p class="text-slate-400 text-sm leading-relaxed">Building self-driving systems and proprietary assets. AI integration and workflow efficiency.</p>
+                    <p class="text-xs text-brand uppercase tracking-widest mb-3">Scale</p>
+                    <p class="text-slate-300 text-sm font-medium mb-2">"The Force Multiplier."</p>
+                    <p class="text-slate-400 text-sm leading-relaxed">Building self-driving systems, custom scripts, and AI models. <strong>The Logic:</strong> Automation replaces manual labour with permanent code assets. It is the highest maturity level, delivering ROI 24/7.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 3. Section 2: The TB Point (The Currency) -->
-    <section class="py-20 bg-slate-850 border-y border-slate-800">
+    <!-- 3. Section 2: TB Points & Value Multipliers -->
+    <section class="py-20 bg-slate-950 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-3xl lg:text-4xl font-bold text-white mb-6">Introducing the <span class="text-brand">TB Point</span></h2>
-                    <p class="text-lg text-slate-300 mb-6">
-                        A Point is a fixed unit of value. We don't charge for the hours it takes; we charge for the asset we deliver. 
+            <div class="flex flex-col lg:flex-row gap-12 items-center">
+                <!-- Education -->
+                <div class="lg:w-1/2">
+                    <h2 class="text-3xl font-bold text-white mb-6">TB Points & Value Multipliers</h2>
+                    <p class="text-slate-300 mb-6 text-lg leading-relaxed">
+                        A <strong>Point</strong> is a fixed unit of value. We don't charge for the hours it takes; we charge for the asset we deliver. Because we are efficient, we share that speed with our clients through points.
                     </p>
-                    <div class="flex flex-col gap-4">
-                        <div class="flex items-center gap-4 p-4 bg-slate-900 rounded-lg border border-red-900/30 opacity-70">
-                            <div class="w-10 h-10 rounded-full bg-red-900/20 flex items-center justify-center text-red-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold">Old Way: Hourly Billing</h4>
-                                <p class="text-sm text-slate-400">Inefficiency is rewarded. Risk sits on the <span class="text-red-400">Client</span>.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 p-4 bg-slate-800 rounded-lg border border-brand/30 shadow-[0_0_15px_rgba(50,205,50,0.1)]">
-                            <div class="w-10 h-10 rounded-full bg-brand/20 flex items-center justify-center text-brand">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            </div>
-                            <div>
-                                <h4 class="text-white font-bold">New Way: Point Pricing</h4>
-                                <p class="text-sm text-slate-400">Outcomes are rewarded. Risk sits on <span class="text-brand">TrafficBrand</span>.</p>
-                            </div>
-                        </div>
+                    <div class="bg-slate-900 border border-slate-800 p-6 rounded-xl">
+                        <h4 class="text-brand font-bold mb-4 uppercase text-sm tracking-wide">Value Leverage Model</h4>
+                        <ul class="space-y-3">
+                            <li class="flex justify-between text-sm border-b border-slate-800 pb-2">
+                                <span class="text-slate-400">DATA (Engineering)</span>
+                                <span class="text-white font-mono font-bold">1.0x Multiplier</span>
+                            </li>
+                            <li class="flex justify-between text-sm border-b border-slate-800 pb-2">
+                                <span class="text-slate-400">INSIGHTS (Strategic)</span>
+                                <span class="text-blue-400 font-mono font-bold">1.25x Multiplier</span>
+                            </li>
+                            <li class="flex justify-between text-sm border-b border-slate-800 pb-2">
+                                <span class="text-slate-400">ACTION (Tactical)</span>
+                                <span class="text-purple-400 font-mono font-bold">1.5x Multiplier</span>
+                            </li>
+                            <li class="flex justify-between text-sm pb-2">
+                                <span class="text-slate-400">AUTOMATION (Assets)</span>
+                                <span class="text-brand font-mono font-bold">2.0x Multiplier</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-                <!-- Visual Representation -->
-                <div class="relative h-64 lg:h-80 bg-slate-900 rounded-xl border border-slate-700 p-8 flex items-center justify-center overflow-hidden">
-                    <div class="absolute inset-0 bg-grid-slate-800/[0.2] bg-[length:20px_20px]"></div>
-                    <div class="text-center relative z-10">
-                        <span class="block text-6xl font-black text-brand mb-2">1 Point</span>
-                        <span class="block text-2xl text-white font-light">= Fixed Value</span>
-                        <span class="block text-sm text-slate-500 mt-4">(Regardless of time spent)</span>
+
+                <!-- Formula Card -->
+                <div class="lg:w-1/2">
+                    <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 relative overflow-hidden">
+                        <!-- Subtle Glow -->
+                        <div class="absolute right-0 top-0 w-48 h-48 bg-brand/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+                        
+                        <div class="relative z-10">
+                            <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0 1 1 0 002 0zm2-4a1 1 0 110-2 1 1 0 010 2zm3 4a1 1 0 10-2 0 1 1 0 002 0zm-3 4a1 1 0 10-2 0 1 1 0 002 0z" clip-rule="evenodd" />
+                                </svg>
+                                The Investment Formula
+                            </h3>
+                            
+                            <!-- Horizontal Calculation Flow -->
+                            <div class="flex flex-col md:flex-row items-center justify-between gap-2 text-sm">
+                                <!-- Points -->
+                                <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 text-center w-full md:w-1/3">
+                                    <span class="block text-slate-500 text-[10px] uppercase font-semibold mb-1">Base</span>
+                                    <span class="text-white font-mono font-bold">Points</span>
+                                </div>
+                                
+                                <div class="text-slate-600 font-bold">×</div>
+                                
+                                <!-- Multiplier -->
+                                <div class="bg-brand/10 border border-brand/20 rounded-lg p-3 text-center w-full md:w-1/3 shadow-[0_0_10px_rgba(50,205,50,0.05)]">
+                                    <span class="block text-brand text-[10px] uppercase font-bold mb-1">Leverage</span>
+                                    <span class="text-brand font-mono font-bold">1.0x - 2.0x</span>
+                                </div>
+                                
+                                <div class="text-slate-600 font-bold">×</div>
+                                
+                                <!-- Rate -->
+                                <div class="bg-slate-950 border border-slate-800 rounded-lg p-3 text-center w-full md:w-1/3">
+                                    <span class="block text-slate-500 text-[10px] uppercase font-semibold mb-1">Rate</span>
+                                    <span class="text-white font-mono font-bold">R984</span>
+                                </div>
+                            </div>
+
+                            <!-- Result -->
+                            <div class="mt-6 pt-4 border-t border-slate-800 flex justify-between items-center">
+                                <span class="text-slate-400 text-xs uppercase tracking-widest font-semibold">Total Investment</span>
+                                <div class="text-right">
+                                    <span class="text-xl font-bold text-white font-mono">= Rand Value</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 4. Section 3: The Retainer Packages (The Product) -->
-    <section class="py-20 bg-slate-900">
+    <!-- 4. Section 3: The Service Menu (Searchable) -->
+    <section id="service-menu" class="py-20 bg-slate-900 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-white mb-4">Monthly Retainers</h2>
-                <p class="text-slate-400">Choose the velocity of your growth.</p>
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-white">Service Catalogue</h2>
+                    <p class="text-slate-500 text-sm mt-1">Live calculation of leveraged assets.</p>
+                </div>
+                <div class="relative w-full md:w-64">
+                    <input type="text" x-model="search" placeholder="Search services..." class="w-full bg-slate-800 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:border-brand outline-none">
+                    <svg class="h-4 w-4 text-slate-500 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-                
-                <!-- Card 1: Maintenance -->
-                <div class="bg-slate-850 rounded-2xl p-8 border border-slate-800">
-                    <h3 class="text-lg font-medium text-slate-300">Maintenance</h3>
-                    <div class="my-4">
-                        <span class="text-4xl font-bold text-white">10</span>
-                        <span class="text-slate-500">Points</span>
-                    </div>
-                    <p class="text-sm text-slate-400 mb-6 min-h-[40px]">"Keep the lights on." Basic reporting and maintenance.</p>
-                    <div class="text-2xl font-bold text-white mb-6">R9,844<span class="text-sm font-normal text-slate-500">/pm</span></div>
-                    <a href="#calculator" class="block w-full text-center py-2 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">Select</a>
+            <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden shadow-2xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-800/50 text-xs text-slate-400 uppercase tracking-wider">
+                                <th class="px-6 py-4 font-semibold">Service Name</th>
+                                <th class="px-6 py-4 font-semibold">Category</th>
+                                <th class="px-6 py-4 font-semibold text-right">Base Pts</th>
+                                <th class="px-6 py-4 font-semibold text-right text-brand">Multiplier</th>
+                                <th class="px-6 py-4 font-semibold text-right text-white">Final Value</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <template x-for="s in filteredServices" :key="s.name">
+                                <tr class="hover:bg-slate-800 transition-colors group">
+                                    <td class="px-6 py-4 text-sm font-medium text-white group-hover:text-brand transition-colors" x-text="s.name"></td>
+                                    <td class="px-6 py-4">
+                                        <span class="text-[10px] uppercase font-bold px-2 py-1 rounded border"
+                                            :class="{
+                                                'border-slate-600 text-slate-400': s.multiplier === 1.0,
+                                                'border-blue-500/30 text-blue-400': s.multiplier === 1.25,
+                                                'border-purple-500/30 text-purple-400': s.multiplier === 1.5,
+                                                'border-brand/30 text-brand bg-brand/5': s.multiplier === 2.0
+                                            }" x-text="s.category">
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-right text-slate-400 font-mono" x-text="Math.round(s.points)"></td>
+                                    <td class="px-6 py-4 text-sm text-right font-mono font-bold" 
+                                        :class="s.multiplier > 1.0 ? 'text-white' : 'text-slate-600'"
+                                        x-text="s.multiplier + 'x'"></td>
+                                    <td class="px-6 py-4 text-sm text-right text-white font-mono bg-slate-800/30" x-text="formatCurrency(calculateServiceValue(s))"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
                 </div>
-
-                <!-- Card 2: Growth (Highlighted) -->
-                <div class="bg-slate-800 rounded-2xl p-8 border-2 border-brand relative shadow-[0_0_30px_rgba(50,205,50,0.1)] transform scale-105 z-10">
-                    <div class="absolute top-0 right-0 bg-brand text-slate-900 text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">MOST POPULAR</div>
-                    <h3 class="text-lg font-bold text-brand">Growth</h3>
-                    <div class="my-4">
-                        <span class="text-5xl font-bold text-white">24</span>
-                        <span class="text-slate-400">Points</span>
-                    </div>
-                    <p class="text-sm text-slate-300 mb-6 min-h-[40px]">"Deep-dive insights." Active optimization and strategy deployment.</p>
-                    <div class="text-3xl font-bold text-white mb-6">R23,626<span class="text-sm font-normal text-slate-500">/pm</span></div>
-                    <a href="#calculator" class="block w-full text-center py-3 rounded-lg bg-brand text-slate-900 font-bold hover:bg-brand-dim transition-colors">Select</a>
-                </div>
-
-                <!-- Card 3: Scale -->
-                <div class="bg-slate-850 rounded-2xl p-8 border border-slate-800">
-                    <h3 class="text-lg font-medium text-slate-300">Scale</h3>
-                    <div class="my-4">
-                        <span class="text-4xl font-bold text-white">48</span>
-                        <span class="text-slate-500">Points</span>
-                    </div>
-                    <p class="text-sm text-slate-400 mb-6 min-h-[40px]">"Advanced modeling." Full-stack automation and predictive analytics.</p>
-                    <div class="text-2xl font-bold text-white mb-6">R47,252<span class="text-sm font-normal text-slate-500">/pm</span></div>
-                    <a href="#calculator" class="block w-full text-center py-2 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">Select</a>
-                </div>
-
             </div>
         </div>
     </section>
 
-    <!-- 5. Section 4: The Calculator & Menu (The Tool) -->
-    <!-- Alpine JS Component -->
-    <section id="calculator" class="py-20 bg-slate-900 border-t border-slate-800" 
-        x-data="{
-            points: 24,
-            isRetainer: true,
-            search: '',
-            services: [
-                { category: 'Data', name: 'Comprehensive Platform Audit', points: 8.0 },
-                { category: 'Data', name: 'GA4 Architecture Setup', points: 12.0 },
-                { category: 'Data', name: 'Server-Side GTM Setup', points: 24.0 },
-                { category: 'Data', name: 'Consent Mode V2 Implementation', points: 10.0 },
-                { category: 'Data', name: 'BigQuery Integration', points: 12.0 },
-                { category: 'Insights', name: 'Executive Dashboard (Looker)', points: 14.0 },
-                { category: 'Insights', name: 'Creative Impact Modeling', points: 20.0 },
-                { category: 'Insights', name: 'Media Mix Modeling (MMM)', points: 30.0 },
-                { category: 'Insights', name: 'Incrementality Testing', points: 18.0 },
-                { category: 'Action', name: 'Discovery Workshop', points: 14.0 },
-                { category: 'Action', name: 'Measurement Framework Strategy', points: 8.0 },
-                { category: 'Action', name: 'Marketing Script Deployment', points: 4.0 },
-                { category: 'Automation', name: 'CRM Data Enrichment', points: 18.0 },
-                { category: 'Automation', name: 'Offline Conversion Import (OCI)', points: 14.0 },
-                { category: 'Automation', name: 'Predictive Audience Segmentation', points: 24.0 }
-            ],
-            get rate() {
-                return this.isRetainer ? 900.00 : 984.43;
-            },
-            get total() {
-                return (this.points * this.rate).toLocaleString('en-ZA', {
-                    style: 'currency',
-                    currency: 'ZAR',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                });
-            },
-            get filteredServices() {
-                if (this.search === '') return this.services;
-                return this.services.filter(s => s.name.toLowerCase().includes(this.search.toLowerCase()));
-            }
-        }">
-        
+    <!-- 5. Section 4: Value-Based Retainer Packages -->
+    <section class="py-20 bg-slate-950 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <h2 class="text-3xl font-bold text-white text-center mb-12">Value-Based Retainers</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                <!-- Left Column: The Calculator (Sticky) -->
-                <div class="lg:col-span-4">
-                    <div class="bg-slate-850 rounded-2xl p-6 border border-slate-700 sticky top-24 shadow-2xl">
-                        <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                            Point Calculator
-                        </h3>
-
-                        <!-- Points Input -->
-                        <div class="mb-8">
-                            <label class="block text-sm font-medium text-slate-400 mb-2">Total Points</label>
-                            <div class="flex items-center gap-4">
-                                <input type="range" min="1" max="100" x-model="points" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand">
-                                <input type="number" x-model="points" class="w-20 bg-slate-900 border border-slate-700 text-white text-center rounded-lg p-2 focus:ring-2 focus:ring-brand outline-none font-mono">
-                            </div>
+                <!-- Maintenance -->
+                <div class="bg-slate-850 rounded-2xl p-8 border border-slate-800 flex flex-col h-full hover:border-slate-600 transition-colors">
+                    <h3 class="text-xl font-bold text-white mb-2">The Maintenance Retainer</h3>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest mb-6 h-8">Data Hygiene & Infrastructure Insurance</p>
+                    
+                    <div class="mb-6 pb-6 border-b border-slate-800">
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-4xl font-bold text-white">10.0</span>
+                            <span class="text-slate-400 text-sm font-bold">TB Points</span>
                         </div>
+                        <div class="text-xs text-slate-500 mt-2">Multiplier: <span class="text-slate-300">1.0x</span> (Foundational)</div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="text-3xl font-bold text-white">R9,844.30<span class="text-sm font-normal text-slate-500"> /pm</span></div>
+                        <div class="text-[10px] text-slate-500 uppercase mt-1">Excl. VAT</div>
+                    </div>
 
-                        <!-- Toggle Rate -->
-                        <div class="mb-8 bg-slate-900 p-4 rounded-xl border border-slate-800 flex justify-between items-center">
-                            <div class="text-sm">
-                                <span class="block text-white font-medium" x-text="isRetainer ? 'Retainer Rate' : 'Standard Rate'"></span>
-                                <span class="text-brand font-mono text-xs" x-text="isRetainer ? 'R900.00 / pt' : 'R984.43 / pt'"></span>
-                            </div>
-                            <!-- Toggle Switch -->
-                            <button 
-                                class="w-14 h-7 rounded-full bg-slate-700 relative transition-colors duration-300 focus:outline-none"
-                                :class="{ 'bg-brand': isRetainer }"
-                                @click="isRetainer = !isRetainer"
-                            >
-                                <div 
-                                    class="w-5 h-5 bg-white rounded-full absolute top-1 left-1 transition-transform duration-300"
-                                    :class="{ 'translate-x-7': isRetainer }"
-                                ></div>
-                            </button>
-                        </div>
+                    <p class="text-sm text-slate-400 mb-8 leading-relaxed">
+                        Designed for businesses with established tracking that need to ensure accuracy and compliance. Data entropy is real—browser updates and privacy laws can break tracking overnight. This is "insurance" for data integrity.
+                    </p>
 
-                        <!-- Output -->
-                        <div class="text-center pt-6 border-t border-slate-700">
-                            <span class="block text-slate-400 text-sm uppercase tracking-wide">Estimated Investment</span>
-                            <span class="block text-4xl lg:text-5xl font-black text-brand mt-2" x-text="total"></span>
-                        </div>
+                    <div class="mt-auto">
+                        <h4 class="text-white text-sm font-bold mb-4 uppercase tracking-wide text-[10px]">Key Outcomes</h4>
+                        <ul class="space-y-3 text-sm text-slate-400">
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-slate-300">Proactive Auditing:</strong> Monthly GA4/GTM health checks.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-slate-300">Tag Governance:</strong> Ensuring pixels fire correctly after updates.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-slate-300">Dashboard Continuity:</strong> Maintaining Looker Studio connectors.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-slate-300">Privacy Alignment:</strong> Basic Consent Mode updates.</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                <!-- Right Column: Service Menu -->
-                <div class="lg:col-span-8">
-                    <div class="flex flex-col sm:flex-row justify-between items-end sm:items-center mb-6 gap-4">
-                        <h3 class="text-2xl font-bold text-white">Service Menu</h3>
-                        <div class="relative w-full sm:w-64">
-                            <input 
-                                type="text" 
-                                x-model="search" 
-                                placeholder="Filter services..." 
-                                class="w-full bg-slate-850 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:ring-1 focus:ring-brand outline-none"
-                            >
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-4 w-4 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Growth -->
+                <div class="bg-slate-800 rounded-2xl p-8 border-2 border-brand flex flex-col h-full relative shadow-[0_0_40px_rgba(50,205,50,0.1)] transform md:-translate-y-4">
+                    <div class="absolute top-0 right-0 bg-brand text-slate-900 text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wide">Most Popular</div>
+                    
+                    <h3 class="text-xl font-bold text-white mb-2">The Growth Retainer</h3>
+                    <p class="text-xs text-brand uppercase tracking-widest mb-6 h-8">Strategic Intelligence & Campaign Optimisation</p>
 
-                    <div class="bg-slate-850 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
-                        <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead class="bg-slate-900 sticky top-0 z-10">
-                                    <tr>
-                                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700">Category</th>
-                                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700">Service</th>
-                                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700 text-right">Points</th>
-                                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-700 text-right">Add</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-800">
-                                    <template x-for="service in filteredServices" :key="service.name">
-                                        <tr class="hover:bg-slate-800/50 transition-colors group">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span 
-                                                    class="px-2 py-1 text-xs rounded font-medium border"
-                                                    :class="{
-                                                        'border-blue-900 bg-blue-900/20 text-blue-400': service.category === 'Data',
-                                                        'border-purple-900 bg-purple-900/20 text-purple-400': service.category === 'Insights',
-                                                        'border-orange-900 bg-orange-900/20 text-orange-400': service.category === 'Action',
-                                                        'border-emerald-900 bg-emerald-900/20 text-emerald-400': service.category === 'Automation',
-                                                    }"
-                                                    x-text="service.category"
-                                                ></span>
-                                            </td>
-                                            <td class="px-6 py-4 text-sm text-slate-200 font-medium" x-text="service.name"></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-brand font-mono font-bold text-right" x-text="service.points.toFixed(1)"></td>
-                                            <td class="px-6 py-4 text-right">
-                                                <button @click="points = Math.min(100, parseInt(points) + Math.ceil(service.points))" class="text-slate-500 hover:text-brand transition-colors">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
-                                                    </svg>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                            <div x-show="filteredServices.length === 0" class="p-8 text-center text-slate-500">
-                                No services found matching your search.
-                            </div>
+                    <div class="mb-6 pb-6 border-b border-slate-700">
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-5xl font-bold text-brand">24.0</span>
+                            <span class="text-slate-300 text-sm font-bold">TB Points</span>
                         </div>
+                        <div class="text-xs text-slate-400 mt-2">Multiplier: <span class="text-white">1.25x</span> (Strategic)</div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="text-4xl font-bold text-white">R29,532.90<span class="text-sm font-normal text-slate-500"> /pm</span></div>
+                        <div class="text-[10px] text-slate-500 uppercase mt-1">Excl. VAT</div>
+                    </div>
+                    
+                    <p class="text-sm text-slate-300 mb-8 leading-relaxed">
+                        For marketing teams that need answers, not just numbers. This moves you from Data into Insights and Action. We become a strategic extension of your team, helping interpret behaviour and optimise spend.
+                    </p>
+                    
+                    <div class="mt-auto">
+                        <h4 class="text-white text-sm font-bold mb-4 uppercase tracking-wide text-[10px]">Key Outcomes</h4>
+                        <ul class="space-y-3 text-sm text-slate-300">
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-white">Campaign Intelligence:</strong> Full tracking for new launches.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-white">Custom Visualisation:</strong> Deep-dive dashboards (e.g., Funnels).</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-white">Quarterly Strategy:</strong> 90-min roadmap sessions.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-white">Rapid Support:</strong> Deployment for experimental pages.</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
+
+                <!-- Scale -->
+                <div class="bg-slate-850 rounded-2xl p-8 border border-slate-800 flex flex-col h-full hover:border-slate-600 transition-colors">
+                    <h3 class="text-xl font-bold text-white mb-2">The Scale Retainer</h3>
+                    <p class="text-xs text-slate-500 uppercase tracking-widest mb-6 h-8">Advanced Automation & High-Leverage Assets</p>
+
+                    <div class="mb-6 pb-6 border-b border-slate-800">
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-4xl font-bold text-white">48.0</span>
+                            <span class="text-slate-400 text-sm font-bold">TB Points</span>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2">Multiplier: <span class="text-slate-300">1.5x</span> (Automation)</div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="text-3xl font-bold text-white">R70,878.96<span class="text-sm font-normal text-slate-500"> /pm</span></div>
+                        <div class="text-[10px] text-slate-500 uppercase mt-1">Excl. VAT</div>
+                    </div>
+                    
+                    <p class="text-sm text-slate-400 mb-8 leading-relaxed">
+                        Our flagship partnership for high-velocity organisations. We build permanent code-based assets that give you a competitive advantage, focusing heavily on Automation to replace manual work with scalable systems.
+                    </p>
+                    
+                    <div class="mt-auto">
+                        <h4 class="text-white text-sm font-bold mb-4 uppercase tracking-wide text-[10px]">Key Outcomes</h4>
+                        <ul class="space-y-3 text-sm text-slate-400">
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-slate-300">Server-Side Arch:</strong> Full sGTM management (GCP).</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-slate-300">CRM Enrichment:</strong> Pushing web intent to Salesforce/HubSpot.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-slate-300">Predictive Modelling:</strong> ML-driven audiences synced to ads.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-brand mt-0.5">✓</span>
+                                <span><strong class="text-slate-300">Data Warehousing:</strong> BigQuery management for long-term memory.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-slate-950 py-12 border-t border-slate-900">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-slate-600 text-sm">
-                &copy; 2024 TrafficBrand Internal Strategy Tool. Confidential. <br>
-                <span class="text-slate-700 mt-2 block">Built for Engineering Growth.</span>
-            </p>
+    <!-- Footer: Cleaned up -->
+    <footer class="bg-slate-950 py-10 border-t border-slate-900 text-center">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="mt-8 text-xs text-slate-700">&copy; 2026 TrafficBrand. Confidential Internal Tool.</p>
         </div>
     </footer>
 
